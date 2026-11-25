@@ -96,6 +96,9 @@ details ol{margin:0;padding:0 8px 0 24px}details li{margin-bottom:8px}
 .awake .head{transform:none}
 .pet.waking .e-open{display:inline!important}
 .pet.waking .e-happy{display:none!important}
+/* okşarken: yalnızca mutlu gözler (uyanma anı hariç) */
+.scene.pet:not(.waking) .e-open,.scene.pet:not(.waking) .e-sleep,.scene.pet:not(.waking) .e-blink{display:none!important}
+.scene.pet:not(.waking) .e-happy{display:inline!important}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -316,6 +319,7 @@ function pet(e){
   heart(e);
   if (!scene.classList.contains('pet')) {
     clearTimeout(awakeTimer);
+    scene.classList.remove('awake');
     if (scene.classList.contains('sleep') && !scene.classList.contains('awake')) {
       scene.classList.add('waking');
       setTimeout(() => scene.classList.remove('waking'), 700);

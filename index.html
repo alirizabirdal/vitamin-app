@@ -76,6 +76,16 @@ details ol{margin:0;padding:0 8px 0 24px}details li{margin-bottom:8px}
 @keyframes pop{from{transform:scale(.6);opacity:0}}
 .fi{transform:scale(0);transition:transform .9s cubic-bezier(.2,.9,.25,1.3)}
 .fl.on .fi{transform:scale(1)}
+/* kedi sevme */
+#cat{cursor:pointer}
+.scene{touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.pet .e-sleep,.pet .e-open,.pet .zzz,.pet .meow{display:none!important}
+.pet .e-happy,.pet .blush{display:inline!important}
+.pet .head{animation:petHead .45s ease-in-out infinite!important}
+.pet .tail{animation-duration:.6s}
+@keyframes petHead{0%,100%{transform:rotate(-5deg) translateY(2px)}50%{transform:rotate(5deg) translateY(2px)}}
+.ph{position:absolute;width:22px;height:20px;pointer-events:none;animation:phUp 1.1s ease-out forwards;z-index:2}
+@keyframes phUp{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}20%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--dx)),-90px) scale(1.1)}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -108,7 +118,7 @@ details ol{margin:0;padding:0 8px 0 24px}details li{margin-bottom:8px}
       <g id="vine"></g>
       <path d="M258 228 H312 L304 284 H266Z" fill="#e07f5f"/><rect x="254" y="222" width="62" height="12" rx="5" fill="#ec9677"/>
       <!-- kedi -->
-      <g class="body">
+      <g class="body" id="cat">
         <g class="tail"><path d="M196 262 C238 262 248 226 236 196 C230 182 216 186 222 198 C230 216 226 244 194 248Z" fill="#2e2733"/><path d="M232 206 l8 -4 M236 222 l9 0" stroke="#1d1822" stroke-width="4" stroke-linecap="round"/></g>
         <ellipse cx="150" cy="232" rx="64" ry="54" fill="#2e2733"/>
         <path d="M100 214 q8 4 10 12 M200 214 q-8 4 -10 12" stroke="#1d1822" stroke-width="5" fill="none" stroke-linecap="round"/>
@@ -135,7 +145,7 @@ details ol{margin:0;padding:0 8px 0 24px}details li{margin-bottom:8px}
     </svg>
   </div>
 
-  <p class="bubble" id="msg">Kedi uyuyor, 22:00'de uyanıp sizi çağıracak.</p>
+  <p class="bubble" id="msg">Kedi uyuyor, 22:00'de uyanıp sizi çağıracak. Başını okşayabilirsiniz.</p>
   <button class="btn" id="btn" type="button">Vitaminimi içtim</button>
   <button class="link hide" id="undo" type="button">Yanlışlıkla bastım, geri al</button>
 
@@ -196,7 +206,7 @@ function render(){
   const due = new Date(now); due.setHours(HOUR,0,0,0);
   const late = now >= due || h < 4;
   const state = done ? 'happy' : late ? 'wait' : 'sleep';
-  $('scene').className = 'scene ' + state;
+  $('scene').className = 'scene ' + state + ($('scene').classList.contains('pet') ? ' pet' : '');
 
   $('btn').textContent = done ? 'Bu akşam içildi' : 'Vitaminimi içtim';
   $('btn').classList.toggle('done', done);
@@ -210,7 +220,7 @@ function render(){
   else t = 'Saat geldi, <b>vitamin zamanı</b>';
   $('time').innerHTML = t;
 
-  if (!msgLocked) $('msg').textContent = done ? HAPPY[0] : late ? 'Miyav! Vitamin saati geldi, kedi sizi bekliyor.' : 'Kedi uyuyor, 22:00\'de uyanıp sizi çağıracak.';
+  if (!msgLocked && !savedMsg) $('msg').textContent = done ? HAPPY[0] : late ? 'Miyav! Vitamin saati geldi, kedi sizi bekliyor.' : 'Kedi uyuyor, 22:00\'de uyanıp sizi çağıracak. Başını okşayabilirsiniz.';
 
   const s = streak();
   document.querySelectorAll('.fl').forEach((f, i) => f.classList.toggle('on', i < Math.min(s, 7)));
@@ -276,6 +286,36 @@ $('btn').addEventListener('click', () => {
   try { navigator.vibrate && navigator.vibrate(30); } catch (e) {}
 });
 $('undo').addEventListener('click', () => { const k = key(evening()); delete data[k]; save(); tellTaken(k, false); msgLocked = false; render(); });
+
+/* ---- kedi sevme ---- */
+const PURR = ['Mırr mırr...','Mırrrr, çok güzel!','Mırr... biraz daha!','Kedi çok mutlu 💕','Mırr mırr, teşekkürler!'];
+let petTimer = 0, lastHeart = 0, petting = false, savedMsg = '';
+const scene = $('scene'), cat = $('cat');
+function heart(e){
+  const now = Date.now(); if (now - lastHeart < 110) return; lastHeart = now;
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const r = scene.getBoundingClientRect(), d = document.createElement('div');
+  d.className = 'ph';
+  d.innerHTML = '<svg viewBox="0 0 22 20"><path d="M11 19 L2 10 C-2 5 3 -2 8 2 L11 5 L14 2 C19 -2 24 5 20 10Z" fill="#f08aa6"/></svg>';
+  d.style.left = (e.clientX - r.left) + 'px'; d.style.top = (e.clientY - r.top) + 'px';
+  d.style.setProperty('--dx', (Math.random()*50 - 25) + 'px');
+  scene.appendChild(d); setTimeout(() => d.remove(), 1200);
+}
+function pet(e){
+  heart(e);
+  if (!scene.classList.contains('pet')) {
+    savedMsg = $('msg').textContent;
+    $('msg').textContent = PURR[Math.floor(Math.random()*PURR.length)];
+    try { navigator.vibrate && navigator.vibrate([12,40,12,40,12]); } catch (err) {}
+  }
+  scene.classList.add('pet');
+  clearTimeout(petTimer);
+  petTimer = setTimeout(() => { scene.classList.remove('pet'); if (savedMsg) $('msg').textContent = savedMsg; savedMsg = ''; }, 1500);
+}
+cat.addEventListener('pointerdown', e => { petting = true; pet(e); });
+scene.addEventListener('pointermove', e => { if ((petting || e.pointerType === 'mouse' && e.buttons) && cat.contains(e.target)) pet(e); });
+addEventListener('pointerup', () => { petting = false; });
+addEventListener('pointercancel', () => { petting = false; });
 
 render();
 setInterval(render, 30000);

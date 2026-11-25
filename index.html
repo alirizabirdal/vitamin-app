@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Vitamin">
+<meta name="theme-color" content="#fbe6ea">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>Vitamin Saati</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* VOICE: warm, cute, a gift; short lines in the cat's voice.
+   IDEA: a ginger cat that keeps the evening vitamin; a jasmine pot that blooms a flower for every day in a row.
+   PICTURE: cozy scene — round night window, sleeping/awake/happy cat, jasmine vine with 7 buds.
+   COLOUR and TYPE: blush pink ground, plum ink, ginger cat, jasmine white, leaf green; Fredoka + Nunito.
+   LAYOUT: one phone column — greeting, scene, big button, notifications, week card. */
+:root{color-scheme:light;--bg:#fbe6ea;--bg2:#f6d3db;--ink:#3a2240;--soft:#7d5f7f;--cat:#f0a35e;--cat2:#d9843f;--cream:#fff5e8;--leaf:#78a878;--pink:#f08aa6;--white:#fffdf8}
+*{box-sizing:border-box;min-width:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%}
+body{margin:0;background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%) fixed,var(--bg);color:var(--ink);font:16px/1.5 Nunito,system-ui,sans-serif;overflow-x:clip}
+.wrap{max-width:460px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 18px) 18px calc(env(safe-area-inset-bottom) + 28px);display:flex;flex-direction:column;align-items:center;text-align:center}
+.hi{margin:0;font-size:15px;color:var(--soft);font-weight:700}
+h1{margin:2px 0 0;font:600 clamp(30px,9vw,40px)/1.08 Fredoka,Nunito,sans-serif;text-wrap:balance}
+.time{margin:4px 0 0;font-size:15px;color:var(--soft)}
+.time b{color:var(--ink);white-space:nowrap}
+.scene{width:100%;max-width:400px;aspect-ratio:360/300;margin:6px 0 0;position:relative}
+.scene svg{width:100%;height:100%;display:block;overflow:visible}
+.bubble{position:relative;margin:-6px 0 14px;background:var(--white);border-radius:20px;padding:12px 18px;font:500 18px/1.35 Fredoka,Nunito,sans-serif;box-shadow:0 6px 18px rgba(58,34,64,.08);min-height:48px;max-width:340px;text-wrap:balance}
+.bubble::before{content:"";position:absolute;left:38%;top:-9px;border:10px solid transparent;border-top:0;border-bottom-color:var(--white)}
+.btn{appearance:none;border:0;border-radius:999px;font:800 19px/1 Nunito,sans-serif;padding:20px 28px;width:100%;max-width:340px;min-height:64px;cursor:pointer;background:var(--ink);color:#fff;box-shadow:0 10px 24px rgba(58,34,64,.25);transition:transform .15s}
+.btn:active{transform:scale(.97)}
+.btn.done{background:var(--white);color:var(--leaf);box-shadow:inset 0 0 0 2px var(--leaf);cursor:default}
+.link{appearance:none;background:none;border:0;color:var(--soft);font:700 14px Nunito,sans-serif;text-decoration:underline;padding:10px;min-height:44px;cursor:pointer}
+.hide{display:none!important}
+button:focus-visible,summary:focus-visible{outline:3px solid var(--pink);outline-offset:3px}
+.card{width:100%;background:rgba(255,255,255,.6);border-radius:24px;padding:16px;margin-top:10px}
+.notif{display:flex;align-items:center;gap:12px;text-align:left;font-size:15px}
+.notif p{margin:0;flex:1}
+.notif .sm{appearance:none;border:0;border-radius:999px;background:var(--pink);color:#fff;font:800 15px Nunito,sans-serif;padding:12px 16px;min-height:44px;cursor:pointer;white-space:nowrap}
+.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px}
+.day{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:13px;color:var(--soft);font-weight:700}
+.day svg{width:34px;height:34px}
+.day.today span{color:var(--ink)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.stat{background:var(--white);border-radius:16px;padding:10px 6px}
+.stat b{display:block;font:600 30px/1.1 Fredoka,Nunito,sans-serif}
+.stat span{font-size:13px;color:var(--soft)}
+details{width:100%;margin-top:12px;text-align:left;color:var(--soft);font-size:15px}
+summary{cursor:pointer;padding:12px 4px;min-height:44px;font-weight:800;color:var(--ink);list-style:none;text-align:center}
+summary::-webkit-details-marker{display:none}
+details ol{margin:0;padding:0 8px 0 24px}details li{margin-bottom:8px}
+/* sahne durumları */
+.e-sleep,.e-open,.e-happy,.zzz,.meow,.hearts,.blush{display:none}
+.sleep .e-sleep,.sleep .zzz{display:inline}
+.wait .e-open,.wait .meow{display:inline}
+.happy .e-happy,.happy .hearts,.happy .blush{display:inline}
+.tail{transform-origin:200px 262px;animation:sway 3.2s ease-in-out infinite}
+.wait .tail{animation-duration:1.1s}
+@keyframes sway{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(8deg)}}
+.body{transform-origin:150px 280px}
+.sleep .body{animation:breathe 3.6s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1,1)}50%{transform:scale(1.015,1.03)}}
+.head{transform-origin:150px 180px;transition:transform .6s}
+.sleep .head{transform:translateY(8px) rotate(-6deg)}
+.happy .head{animation:purr 1.6s ease-in-out infinite}
+@keyframes purr{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+.zzz text{animation:float 3s ease-in-out infinite}.zzz text:nth-child(2){animation-delay:.6s}.zzz text:nth-child(3){animation-delay:1.2s}
+.hearts path{animation:float 2.4s ease-in-out infinite}.hearts path:nth-child(2){animation-delay:.8s}.hearts path:nth-child(3){animation-delay:1.6s}
+@keyframes float{0%{opacity:0;transform:translateY(8px)}30%{opacity:1}100%{opacity:0;transform:translateY(-18px)}}
+.meow{animation:pop .5s ease-out}
+@keyframes pop{from{transform:scale(.6);opacity:0}}
+.fi{transform:scale(0);transition:transform .9s cubic-bezier(.2,.9,.25,1.3)}
+.fl.on .fi{transform:scale(1)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <p class="hi" id="hi">İyi akşamlar</p>
+  <h1>Yasemin Hanım</h1>
+  <p class="time" id="time">Vitamin saati: <b>her akşam 22:00</b></p>
+
+  <div class="scene sleep" id="scene" aria-hidden="true">
+    <svg viewBox="0 0 360 300">
+      <defs>
+        <path id="pt" d="M0 0 C-5 -6 -5 -13 0 -16 C5 -13 5 -6 0 0Z"/>
+        <g id="flower"><use href="#pt" fill="#fffdf8"/><use href="#pt" fill="#fffdf8" transform="rotate(72)"/><use href="#pt" fill="#fffdf8" transform="rotate(144)"/><use href="#pt" fill="#fffdf8" transform="rotate(216)"/><use href="#pt" fill="#fffdf8" transform="rotate(288)"/><circle r="3" fill="#f6c94e"/></g>
+      </defs>
+      <!-- pencere ve ay -->
+      <g transform="translate(52 64)">
+        <circle r="40" fill="#3a2a5e"/><circle r="40" fill="none" stroke="#fffdf8" stroke-width="6"/>
+        <circle cx="8" cy="-6" r="15" fill="#fff3c8"/><circle cx="16" cy="-12" r="13" fill="#3a2a5e"/>
+        <circle cx="-18" cy="14" r="1.6" fill="#fff3c8"/><circle cx="-8" cy="-22" r="1.2" fill="#fff3c8"/><circle cx="20" cy="18" r="1.4" fill="#fff3c8"/>
+      </g>
+      <!-- zemin gölgesi -->
+      <ellipse cx="200" cy="286" rx="150" ry="12" fill="#3a2240" opacity=".08"/>
+      <!-- yasemin saksısı -->
+      <path d="M285 228 C270 190 300 160 285 130 C272 104 296 84 288 58" stroke="#78a878" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <g fill="#78a878">
+        <path d="M282 200 c-16 -2 -24 -10 -26 -18 c12 0 22 6 26 18z"/><path d="M293 170 c14 -4 22 -12 22 -20 c-12 2 -20 8 -22 20z"/>
+        <path d="M282 122 c-16 -2 -22 -10 -24 -18 c12 0 20 6 24 18z"/><path d="M292 94 c12 -4 18 -12 18 -18 c-10 2 -16 8 -18 18z"/>
+      </g>
+      <g id="vine"></g>
+      <path d="M258 228 H312 L304 284 H266Z" fill="#e07f5f"/><rect x="254" y="222" width="62" height="12" rx="5" fill="#ec9677"/>
+      <!-- kedi -->
+      <g class="body">
+        <g class="tail"><path d="M196 262 C238 262 248 226 236 196 C230 182 216 186 222 198 C230 216 226 244 194 248Z" fill="#f0a35e"/><path d="M232 206 l8 -4 M236 222 l9 0" stroke="#d9843f" stroke-width="4" stroke-linecap="round"/></g>
+        <ellipse cx="150" cy="232" rx="64" ry="54" fill="#f0a35e"/>
+        <path d="M100 214 q8 4 10 12 M200 214 q-8 4 -10 12" stroke="#d9843f" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <ellipse cx="150" cy="242" rx="34" ry="38" fill="#fff5e8"/>
+        <ellipse cx="128" cy="280" rx="17" ry="10" fill="#fff5e8"/><ellipse cx="172" cy="280" rx="17" ry="10" fill="#fff5e8"/>
+        <g class="head">
+          <path d="M106 128 L110 72 L146 104Z" fill="#f0a35e"/><path d="M194 128 L190 72 L154 104Z" fill="#f0a35e"/>
+          <path d="M114 116 L116 86 L136 104Z" fill="#f6b8c6"/><path d="M186 116 L184 86 L164 104Z" fill="#f6b8c6"/>
+          <ellipse cx="150" cy="146" rx="58" ry="50" fill="#f0a35e"/>
+          <path d="M138 100 l2 14 M150 98 v16 M162 100 l-2 14" stroke="#d9843f" stroke-width="5" stroke-linecap="round"/>
+          <ellipse cx="150" cy="166" rx="26" ry="18" fill="#fff5e8"/>
+          <g class="e-sleep" stroke="#3a2240" stroke-width="4" fill="none" stroke-linecap="round"><path d="M114 146 q11 9 22 0"/><path d="M164 146 q11 9 22 0"/></g>
+          <g class="e-open"><circle cx="125" cy="144" r="10" fill="#3a2240"/><circle cx="175" cy="144" r="10" fill="#3a2240"/><circle cx="128" cy="140" r="3.5" fill="#fff"/><circle cx="178" cy="140" r="3.5" fill="#fff"/></g>
+          <g class="e-happy" stroke="#3a2240" stroke-width="4" fill="none" stroke-linecap="round"><path d="M114 149 q11 -12 22 0"/><path d="M164 149 q11 -12 22 0"/></g>
+          <g class="blush" fill="#f08aa6" opacity=".55"><ellipse cx="112" cy="164" rx="10" ry="6"/><ellipse cx="188" cy="164" rx="10" ry="6"/></g>
+          <path d="M144 158 h12 l-6 7z" fill="#e7738f"/>
+          <path d="M150 165 v5 M150 170 q-6 6 -11 1 M150 170 q6 6 11 1" stroke="#3a2240" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <g stroke="#3a2240" stroke-width="1.8" stroke-linecap="round" opacity=".55"><path d="M118 162 l-26 -4 M118 168 l-26 4 M182 162 l26 -4 M182 168 l26 4"/></g>
+        </g>
+      </g>
+      <g class="zzz" fill="#7d5f7f" font-family="Fredoka,sans-serif" font-weight="600"><text x="200" y="92" font-size="18">z</text><text x="214" y="74" font-size="22">z</text><text x="230" y="54" font-size="26">z</text></g>
+      <g class="meow"><rect x="186" y="54" width="82" height="36" rx="18" fill="#fffdf8"/><path d="M196 86 l-8 14 l18 -10z" fill="#fffdf8"/><text x="227" y="78" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="600" font-size="17" fill="#3a2240">Miyav!</text></g>
+      <g class="hearts" fill="#f08aa6"><path d="M206 92 c-6 -8 -18 -2 -12 8 l12 10 l12 -10 c6 -10 -6 -16 -12 -8z"/><path d="M96 82 c-4 -6 -13 -2 -9 6 l9 7 l9 -7 c4 -8 -5 -12 -9 -6z"/><path d="M230 60 c-4 -5 -11 -1 -7 5 l7 6 l7 -6 c4 -6 -3 -10 -7 -5z"/></g>
+    </svg>
+  </div>
+
+  <p class="bubble" id="msg">Kedi uyuyor, 22:00'de uyanıp sizi çağıracak.</p>
+  <button class="btn" id="btn" type="button">Vitaminimi içtim</button>
+  <button class="link hide" id="undo" type="button">Yanlışlıkla bastım, geri al</button>
+
+  <section class="card notif hide" id="notif">
+    <p id="ntext">22:00'de telefonunuza hatırlatma gelsin mi?</p>
+    <button class="sm" id="nbtn" type="button">Bildirimleri aç</button>
+  </section>
+
+  <section class="card" aria-label="Bu hafta">
+    <div class="week" id="week"></div>
+    <div class="stats">
+      <div class="stat"><b id="streak">0</b><span>gün üst üste</span></div>
+      <div class="stat"><b id="month">0</b><span>bu ay</span></div>
+    </div>
+  </section>
+
+  <details>
+    <summary>Nasıl kurulur?</summary>
+    <ol>
+      <li>Bu sayfayı <b>Safari</b>'de açın, alttaki <b>Paylaş</b> düğmesine, sonra <b>Ana Ekrana Ekle</b>'ye dokunun.</li>
+      <li>Ana ekrandaki kedili <b>Vitamin</b> ikonundan uygulamayı açın.</li>
+      <li><b>Bildirimleri aç</b>'a dokunup izin verin. Her akşam 22:00'de hatırlatma gelir, içmediyseniz 22:30'da bir kez daha.</li>
+      <li>Saksıdaki yasemin, üst üste her gün için bir çiçek açar.</li>
+    </ol>
+  </details>
+</main>
+
+<script>
+{
+const HOUR = 22, KEY = 'yasemin-vitamin-v1';
+const $ = id => document.getElementById(id);
+const DAYS = ['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];
+const HAPPY = ['Mırr... Afiyet olsun!','Kedi çok mutlu, yasemine bir çiçek daha açtı.','Bugün de tamam. Tatlı rüyalar!','Mırr mırr, seriniz büyüyor.','Aferin size! Kedi kucak istiyor.'];
+const FLOWERS = [[279,205],[292,182],[296,158],[286,136],[278,112],[292,90],[288,62]];
+
+let data = {};
+try { data = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { data = {}; }
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) {} };
+
+const evening = (d = new Date()) => { const x = new Date(d); if (x.getHours() < 4) x.setDate(x.getDate() - 1); x.setHours(12,0,0,0); return x; };
+const key = d => d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+const shift = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+
+$('vine').innerHTML = FLOWERS.map(([x,y]) => `<g class="fl" transform="translate(${x} ${y})"><ellipse rx="4" ry="6" fill="#a6cf9c"/><g class="fi"><use href="#flower"/></g></g>`).join('');
+
+const mini = on => `<svg viewBox="-20 -20 40 40">${on ? '<use href="#flower" transform="scale(1.05)"/>' : '<ellipse rx="4.5" ry="6.5" fill="#a6cf9c"/>'}</svg>`;
+
+function streak(){
+  let n = 0, d = evening();
+  if (!data[key(d)]) d = shift(d, -1);
+  while (data[key(d)]) { n++; d = shift(d, -1); }
+  return n;
+}
+
+let msgLocked = false;
+function render(){
+  const today = evening(), k = key(today), done = !!data[k], now = new Date(), h = now.getHours();
+  const due = new Date(now); due.setHours(HOUR,0,0,0);
+  const late = now >= due || h < 4;
+  const state = done ? 'happy' : late ? 'wait' : 'sleep';
+  $('scene').className = 'scene ' + state;
+
+  $('btn').textContent = done ? 'Bu akşam içildi' : 'Vitaminimi içtim';
+  $('btn').classList.toggle('done', done);
+  $('btn').setAttribute('aria-pressed', done);
+  $('undo').classList.toggle('hide', !done);
+  $('hi').textContent = h < 4 || h >= 18 ? 'İyi akşamlar' : h < 12 ? 'Günaydın' : 'İyi günler';
+
+  let t;
+  if (done) t = 'Bu akşamki vitamin <b>' + data[k] + '</b>\'de içildi';
+  else if (!late) { const m = Math.round((due - now) / 60000); t = 'Vitamin saatine <b>' + (m >= 60 ? Math.floor(m/60) + ' sa ' : '') + (m % 60) + ' dk</b> var'; }
+  else t = 'Saat geldi, <b>vitamin zamanı</b>';
+  $('time').innerHTML = t;
+
+  if (!msgLocked) $('msg').textContent = done ? HAPPY[0] : late ? 'Miyav! Vitamin saati geldi, kedi sizi bekliyor.' : 'Kedi uyuyor, 22:00\'de uyanıp sizi çağıracak.';
+
+  const s = streak();
+  document.querySelectorAll('.fl').forEach((f, i) => f.classList.toggle('on', i < Math.min(s, 7)));
+
+  const start = shift(today, -6);
+  $('week').innerHTML = Array.from({length:7}, (_, i) => { const d = shift(start, i);
+    return `<div class="day${i===6?' today':''}">${mini(!!data[key(d)])}<span>${i===6?'Bugün':DAYS[d.getDay()]}</span></div>`; }).join('');
+  $('streak').textContent = s;
+  $('month').textContent = Object.keys(data).filter(x => x.startsWith(k.slice(0,7))).length;
+}
+
+/* ---- sunucu (Vercel) ---- */
+let server = false, publicKey = '';
+const api = (path, opts) => fetch(path, Object.assign({ headers: { 'content-type': 'application/json' } }, opts)).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
+const tellTaken = (day, yes) => server && api('/api/taken' + (yes ? '' : '?day=' + day), { method: yes ? 'POST' : 'DELETE', body: yes ? JSON.stringify({ day }) : undefined }).catch(() => {});
+
+const b64 = s => { const p = '='.repeat((4 - s.length % 4) % 4); const r = atob((s + p).replace(/-/g,'+').replace(/_/g,'/')); return Uint8Array.from([...r].map(c => c.charCodeAt(0))); };
+const standalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+
+async function setupNotif(){
+  const box = $('notif');
+  if (!server || !('serviceWorker' in navigator)) return;
+  let reg;
+  try { reg = await navigator.serviceWorker.register('/sw.js'); } catch (e) { return; }
+  box.classList.remove('hide');
+  if (!('PushManager' in window) || !('Notification' in window)) {
+    $('ntext').textContent = standalone() ? 'Bu telefon bildirimleri desteklemiyor.' : 'Bildirim için önce sayfayı ana ekrana ekleyin (aşağıda nasıl yapılacağı yazıyor).';
+    $('nbtn').classList.add('hide'); return;
+  }
+  const existing = await reg.pushManager.getSubscription().catch(() => null);
+  if (existing && Notification.permission === 'granted') {
+    $('ntext').textContent = 'Hatırlatma açık: her akşam 22:00.';
+    $('nbtn').classList.add('hide');
+    api('/api/subscribe', { method: 'POST', body: JSON.stringify(existing) }).catch(() => {});
+    return;
+  }
+  if (Notification.permission === 'denied') {
+    $('ntext').textContent = 'Bildirim izni kapalı. Ayarlar > Bildirimler > Vitamin\'den açabilirsiniz.';
+    $('nbtn').classList.add('hide'); return;
+  }
+  $('nbtn').onclick = async () => {
+    try {
+      const p = await Notification.requestPermission();
+      if (p !== 'granted') { $('ntext').textContent = 'İzin verilmedi. İsterseniz Ayarlar\'dan açabilirsiniz.'; return; }
+      const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64(publicKey) });
+      await api('/api/subscribe', { method: 'POST', body: JSON.stringify(sub) });
+      $('ntext').textContent = 'Hatırlatma açık: her akşam 22:00.';
+      $('nbtn').classList.add('hide');
+    } catch (e) { $('ntext').textContent = 'Bir sorun oldu, birazdan tekrar deneyin.'; }
+  };
+}
+
+$('btn').addEventListener('click', () => {
+  const k = key(evening());
+  if (data[k]) return;
+  const n = new Date();
+  data[k] = String(n.getHours()).padStart(2,'0') + ':' + String(n.getMinutes()).padStart(2,'0');
+  save(); tellTaken(k, true);
+  const s = streak();
+  $('msg').textContent = s > 1 && s % 7 === 0 ? s + ' gündür hiç aksatmadınız, yasemin çiçek çiçek!' : HAPPY[Math.floor(Math.random()*HAPPY.length)];
+  msgLocked = true;
+  render();
+  try { navigator.vibrate && navigator.vibrate(30); } catch (e) {}
+});
+$('undo').addEventListener('click', () => { const k = key(evening()); delete data[k]; save(); tellTaken(k, false); msgLocked = false; render(); });
+
+render();
+setInterval(render, 30000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) render(); });
+
+api('/api/config').then(c => {
+  if (!c || !c.publicKey) return;
+  server = true; publicKey = c.publicKey;
+  const k = key(evening()); if (data[k]) tellTaken(k, true);
+  setupNotif();
+}).catch(() => {});
+}
+</script>
+</body>
+</html>
